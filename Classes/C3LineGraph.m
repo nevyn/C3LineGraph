@@ -132,7 +132,7 @@
 		CGPathAddLineToPoint(pa, NULL, lineO, self.frame.size.height);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor lightGrayColor].CGColor;
+		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.8 alpha:1.0].CGColor;
 		[lg setName:[NSString stringWithFormat:@"XAxis %f", lineO]];
 		
 		[self.xAxis addSublayer:l];
@@ -169,7 +169,7 @@
 		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, lineO);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor lightGrayColor].CGColor;
+		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.9 alpha:1.0].CGColor;
 		[lg setName:[NSString stringWithFormat:@"YAxis %f", lineO]];
 		
 		
