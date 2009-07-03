@@ -32,7 +32,8 @@ typedef enum
 	
 	CALayer *xAxis;
 	CALayer *yAxis;
-	BOOL hasAnimated;
+	CALayer *gridLines;
+	BOOL hasAnimated;	
 }
 
 #pragma mark 
@@ -44,40 +45,6 @@ typedef enum
 #pragma mark 
 #pragma mark Looks
 
-/*!	@method	setDrawsGrid:
- @discussion	Controls whether the receiver draws grid lines on the graph. The default is NO.
- 
- <B>See Also:</B> -drawsGrid, -setGridColor:, -gridColor, -setBackgroundColor: and -backgroundColor.
- @param	inFlag	If YES the receiver draws grid lines; if NO it doesn't.
- */
-@property BOOL drawsGrid;
-
-
-/*!	@method	setBackgroundColor:
- @discussion	Sets the receiver's background color to aColor.  The default is white.  If set to nil, no
- background is drawn.
- 
- <B>See Also:</B> -setDrawsGrid:, -drawsGrid, -setGridColor:, -gridColor, and -backgroundColor.
- @param	inColor	The new background color.
- */
-@property (copy) UIColor *backgroundColor;
-
-/*!	@method	setGridColor:
- @discussion	Sets the color used to draw grid lines. The default color is blue.
- 
- <B>See Also:</B> -setDrawsGrid:, -drawsGrid, -gridColor, -setBackgroundColor:, and -backgroundColor.
- @param	inColor	The color to draw grid lines.
- */
-@property (copy)  UIColor *gridColor;
-
-
-/*!	@method	setBorderColor:
- @discussion	Sets the color used to draw the border of the graph area. The default color is black.
- 
- <B>See Also:</B> -setDrawsGrid:, -drawsGrid, -gridColor, -setBackgroundColor:, and -backgroundColor.
- @param	inColor	The color to draw grid lines.
- */
-@property (copy) UIColor *borderColor;
 
 
 /*!	@method	setNumberOfTickMarks:forAxis:

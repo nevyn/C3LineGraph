@@ -35,6 +35,7 @@
   [super viewDidLoad];
 	
 	[graph setNumberOfTickMarks:5 forAxis:kC3Graph_Axis_X];
+	[graph setNumberOfTickMarks:8 forAxis:kC3Graph_Axis_Y];
 	
 	[graph relayout];
 	
