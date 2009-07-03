@@ -13,6 +13,7 @@
 @property (retain) CALayer *xAxis;
 @property (retain) CALayer *yAxis;
 @property (retain) CALayer *gridLines;
+@property (retain) CALayer *dataLines;
 -(void)animateIntoPlace;
 -(NSArray*)gridLines:(NSString*)axisName;
 @end
@@ -24,7 +25,7 @@
 
 }
 @synthesize dataSource, delegate;
-@synthesize xAxis, yAxis, gridLines;
+@synthesize xAxis, yAxis, gridLines, dataLines;
 -(void)setXAxis:(CALayer*)xAxis_; {
 	if(xAxis == xAxis_) return;
 	[self.layer addSublayer:xAxis_];
@@ -43,6 +44,13 @@
 	[gridLines removeFromSuperlayer];
 	gridLines = gridLines_;
 }
+-(void)setDataLines:(CALayer*)dataLines_; {
+	if(dataLines == dataLines_) return;
+	[self.layer addSublayer:dataLines_];
+	[dataLines removeFromSuperlayer];
+	dataLines = dataLines_;
+}
+
 
 - (void)setNumberOfTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
 {
@@ -61,15 +69,60 @@
 	return minorTickMarkCount[inAxis];
 }
 
--(void)relayout;
-{	
-	// Setup the x and y axis bars on bottom and left
-	CGRect pen = self.frame;
 
+-(NSRange)xRange:(int)i;
+{
+	CGFloat minx, maxx;
+	minx = [dataSource twoDGraphView:self minimumValueForLineIndex:i forAxis:kC3Graph_Axis_X];
+	maxx = [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_X];
+	return NSMakeRange(minx, maxx-minx);
+}
+-(NSRange)xRange;
+{
+	int lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
+	CGFloat minx = INT_MAX, maxx = INT_MIN;
+	
+	for(int i = 0; i < lineCount; i++)
+		minx = MIN(minx, [dataSource twoDGraphView:self minimumValueForLineIndex:i forAxis:kC3Graph_Axis_X]);
+	for(int i = 0; i < lineCount; i++)
+		maxx = MAX(maxx, [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_X]);
+	
+	return NSMakeRange(minx, maxx-minx);
+}
+-(NSRange)yRange;
+{
+	int lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
+	CGFloat miny = INT_MAX, maxy = INT_MIN;
+	
+	for(int i = 0; i < lineCount; i++)
+		miny = MIN(miny, [dataSource twoDGraphView:self minimumValueForLineIndex:i forAxis:kC3Graph_Axis_Y]);
+	for(int i = 0; i < lineCount; i++)
+		maxy = MAX(maxy, [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_Y]);
+	return NSMakeRange(miny, maxy-miny);
+}
+
+-(void)relayout;
+{
+	// Clear out any previous layout. Preferably, we would transition to the new
+	// settings instead of just ripping out all the old an putting new stuff in
+	// there, but that's for another time, when there is time to be had.
+	self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
+	
+	
+	// Setup the container layers
+	
+	// gridLines
+	CGRect pen = self.frame;
 	self.gridLines = [CALayer layer];
 	pen.origin = CGPointMake(0, 0);
 	self.gridLines.frame = self.frame;
 	
+	// dataLines
+	self.dataLines = [CALayer layer];
+	self.gridLines.frame = self.frame;
+
+	
+	// xAxis
 	pen.size.height = 40;
 	pen.origin.y = self.frame.size.height-pen.size.height;
 	self.xAxis = [CALayer layer];
@@ -77,7 +130,7 @@
 	self.xAxis.frame = pen;
 	self.xAxis.backgroundColor = [UIColor redColor].CGColor;
 	
-	
+	// yAxis
 	self.yAxis = [CALayer layer];
 	self.yAxis.masksToBounds = YES;
 	self.yAxis.opacity = 0.6;
@@ -88,20 +141,19 @@
 	self.yAxis.backgroundColor = [UIColor greenColor].CGColor;
 	
 	
+	
 	// Figure out our min and max values
 	int lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
 	float minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
-	for(int i = 0; i < lineCount; i++)
-		minx = MIN(minx, [dataSource twoDGraphView:self minimumValueForLineIndex:i forAxis:kC3Graph_Axis_X]);
-	for(int i = 0; i < lineCount; i++)
-		maxx = MAX(maxx, [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_X]);
-	for(int i = 0; i < lineCount; i++)
-		miny = MIN(miny, [dataSource twoDGraphView:self minimumValueForLineIndex:i forAxis:kC3Graph_Axis_Y]);
-	for(int i = 0; i < lineCount; i++)
-		maxy = MAX(maxy, [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_Y]);
+	NSRange xRange = [self xRange];
+	minx = xRange.location;
+	maxx = xRange.location + xRange.length;
+
+	NSRange yRange = [self yRange];
+	miny = yRange.location;
+	maxy = miny + yRange.length;
 	
 	// Add labels and grid lines along x axis
-	
 	float stepx = (maxx-minx)/tickMarkCount[kC3Graph_Axis_X];
 	BOOL doFetchLabels = [delegate respondsToSelector:@selector(twoDGraphView:labelForTickMarkIndex:forAxis:defaultLabel:)];
 	
@@ -141,7 +193,6 @@
 	
 	
 	// Add labels and gridlines along y axis
-	
 	float stepy = (maxy-miny)/tickMarkCount[kC3Graph_Axis_Y];
 	float heightPerLabel = (self.frame.size.height - 40 - margin*2)/tickMarkCount[kC3Graph_Axis_Y] - margin;
 	
@@ -179,13 +230,52 @@
 		[self.gridLines addSublayer:lg];
 	}
 	
-	
+	[self reloadData];
 	
 	
 	[self animateIntoPlace];
 }
 -(void)reloadData;
 {
+	BOOL wantsCustomization = [delegate respondsToSelector:@selector(twoDGraphView:customizeLine:withIndex:)];
+	
+	NSUInteger lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
+	for(int i = self.dataLines.sublayers.count; i < lineCount; i++) {
+		CAShapeLayer *l = [CAShapeLayer layer];
+		[self.dataLines addSublayer:l];
+		if(wantsCustomization)
+			[delegate twoDGraphView:self customizeLine:l withIndex:i];
+	}
+		
+	for(int i = lineCount; i < self.dataLines.sublayers.count; i++)
+		[[self.dataLines.sublayers objectAtIndex:i] removeFromSuperlayer];
+	
+	NSRange y = [self yRange];
+	NSRange x = [self xRange];
+	
+	for (int i = 0; i < lineCount; i++) {
+		NSArray *values = [dataSource twoDGraphView:self dataForLineIndex:i];
+		
+		CGPathRef path = CGPathCreateMutable();
+		BOOL first = YES;
+		for (NSValue *coordVal in values) {
+			CGPoint p = coordVal.CGPointValue;
+			p.x += x.location;
+			p.y += y.location;
+			p.x /= x.length;
+			p.y /= y.length;
+			p.x *= self.dataLines.frame.size.width;
+			p.y *= self.dataLines.frame.size.height;
+			if(first) {
+				CGPathMoveToPoint(path, NULL, p.x, p.y);
+				first = NO;
+			} else
+				CGPathAddLineToPoint(path, NULL, p.x, p.y);
+		}
+		
+		CAShapeLayer *lineLayer = [[self.dataLines sublayers] objectAtIndex:i];
+		lineLayer.path = path;
+	}
 	
 }
 

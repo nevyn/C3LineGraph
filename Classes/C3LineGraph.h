@@ -33,6 +33,7 @@ typedef enum
 	CALayer *xAxis;
 	CALayer *yAxis;
 	CALayer *gridLines;
+	CALayer *dataLines;
 	BOOL hasAnimated;	
 }
 
@@ -54,8 +55,8 @@ typedef enum
  */
 - (void)setNumberOfTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
 - (NSInteger)numberOfTickMarksForAxis:(C3GraphAxisEnum)inAxis;
-- (void)setNumberOfMinorTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
-- (NSInteger)numberOfMinorTickMarksForAxis:(C3GraphAxisEnum)inAxis;
+/*- (void)setNumberOfMinorTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
+- (NSInteger)numberOfMinorTickMarksForAxis:(C3GraphAxisEnum)inAxis;*/
 
 -(void)relayout;
 -(void)reloadData;
@@ -72,7 +73,7 @@ typedef enum
  @param	inLineIndex	Zero based index of a line displayed on the graph.
  @result	The point after conversion to the appropriate line's scale.
  */
-- (CGPoint)convertPoint:(CGPoint)inPoint fromView:(UIView *)inView toLineIndex:(NSUInteger)inLineIndex;
+/*- (CGPoint)convertPoint:(CGPoint)inPoint fromView:(UIView *)inView toLineIndex:(NSUInteger)inLineIndex;*/
 
 
 @end
@@ -137,7 +138,7 @@ typedef enum
 @protocol C3LineGraphDelegate
 @optional
 /*!	@method	twoDGraphView:labelForTickMarkIndex:forAxis:defaultLabel:
- @discussion <b>Implementing this method is optional.</b>  The delegate has a chance to change the tick mark
+ @discussion The delegate has a chance to change the tick mark
  labels drawn on each axis of the graph.  If the delegate does not respond to this message the
  default label is used.  If nil is returned, no label is drawn.
  
@@ -155,6 +156,13 @@ typedef enum
 										forAxis:(C3GraphAxisEnum)inAxis
 							 defaultLabel:(float)inDefault;
 
+/*! @method twoDGraphView:customizeLine:withIndex:
+    @discussion Gives you an opportunity to change the way the line is drawn,
+								e g color and thickness.
+ */
+-(void)twoDGraphView:(C3LineGraphView *)inGraphView
+			 customizeLine: (CAShapeLayer*)lineLayer
+					 withIndex:(NSUInteger)inLineIndex;
 
 /*!	@method	twoDGraphView:didClickPoint:
  @discussion <b>Implementing this method is optional.</b>  The delegate has a chance to respond to the user
