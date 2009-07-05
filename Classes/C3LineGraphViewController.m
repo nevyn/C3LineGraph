@@ -155,9 +155,9 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 -(NSString*)twoDGraphView:(C3LineGraphView *)inGraphView
 				labelForLineIndex:(NSUInteger)inLineIndex;
 {
-	if(inLineIndex == 0) return nil;
+	if(inLineIndex == 2) return @"Sveriges medel";
 	if(inLineIndex == 1) return @"Ditt medel";
-	return @"Sveriges medel";
+	return nil;
 }
 
 @end

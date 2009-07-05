@@ -36,6 +36,7 @@ typedef enum
 	CALayer *gridLines;
 	CALayer *dataLines;
 	CAGradientLayer *background;
+	CALayer *legend;
 	UIColor *gridColor;
 	BOOL hasAnimated;	
 }

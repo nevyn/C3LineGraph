@@ -15,6 +15,7 @@
 @property (retain) CALayer *gridLines;
 @property (retain) CALayer *dataLines;
 @property (retain) CAGradientLayer *background;
+@property (retain) CALayer *legend;
 -(void)animateIntoPlace;
 -(NSArray*)gridLines:(NSString*)axisName;
 @end
@@ -26,19 +27,20 @@
 
 }
 @synthesize dataSource, delegate;
-@synthesize xAxis, yAxis, gridLines, dataLines, background;
-#define layerSetter(UName, lName, LayerClass) \
--(void)set##UName:(LayerClass*)newArg; { \
+@synthesize xAxis, yAxis, gridLines, dataLines, background, legend;
+#define layerSetter(UName, lName) \
+-(void)set##UName:(id)newArg; { \
   if(lName == newArg) return; \
   [self.layer addSublayer:newArg]; \
   [lName removeFromSuperlayer]; \
    lName = newArg; \
 }
-layerSetter(XAxis, xAxis, CALayer);
-layerSetter(YAxis, yAxis, CALayer);
-layerSetter(GridLines, gridLines, CALayer);
-layerSetter(DataLines, dataLines, CALayer);
-layerSetter(Background, background, CAGradientLayer);
+layerSetter(XAxis, xAxis);
+layerSetter(YAxis, yAxis);
+layerSetter(GridLines, gridLines);
+layerSetter(DataLines, dataLines);
+layerSetter(Background, background);
+layerSetter(Legend, legend);
 
 
 
@@ -107,7 +109,7 @@ static float sidebarSize = 40;
 	// Clear out any previous layout. Preferably, we would transition to the new
 	// settings instead of just ripping out all the old an putting new stuff in
 	// there, but that's for another time, when there is time to be had.
-	self.background = self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
+	self.legend = self.background = self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
 	
 	if(!gridColor)
 		self.gridColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.49 alpha:0.3];
@@ -157,14 +159,21 @@ static float sidebarSize = 40;
 	// yAxis
 	self.yAxis = [CALayer layer];
 	self.yAxis.masksToBounds = YES;
-	self.yAxis.opacity = 0.6;
+	self.yAxis.opacity = 0.8;
 	pen = self.frame;
 	pen.size.width = sidebarSize;
 	pen.origin.y = 0;
 	self.yAxis.frame = pen;
-	self.yAxis.backgroundColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+	self.yAxis.backgroundColor = self.xAxis.backgroundColor;
 	
-	
+	// legend
+	self.legend = [CALayer layer];
+	CGFloat legendWidth = 130;
+	self.legend.cornerRadius = 10.0;
+	//self.legend.borderWidth = 2.0;
+	//self.legend.backgroundColor = [UIColor colorWithHue:0.580 saturation:0.25 brightness:0.75 alpha:0.4].CGColor;
+	//self.legend.borderColor = [UIColor colorWithHue:0.580 saturation:0.35 brightness:0.55 alpha:0.3].CGColor;
+	self.legend.frame = CGRectMake(self.bounds.size.width-legendWidth-10, 14, legendWidth, 20);
 	
 	// Figure out our min and max values
 	float minx, miny, maxx, maxy;
@@ -262,24 +271,67 @@ static float sidebarSize = 40;
 	
 	[self animateIntoPlace];
 }
+#define frand() (rand()%1000)/1000.0
 -(void)reloadData;
 {
 	BOOL wantsCustomization = [delegate respondsToSelector:@selector(twoDGraphView:customizeLine:withIndex:)];
+	BOOL wantsLabel = [delegate respondsToSelector:@selector(twoDGraphView:labelForLineIndex:)];
 	
+	NSUInteger labelCount = self.legend.sublayers.count/2;
 	NSUInteger lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
 	for(int i = self.dataLines.sublayers.count; i < lineCount; i++) {
 		CAShapeLayer *l = [CAShapeLayer layer];
 		l.fillColor = nil;
-		l.strokeColor = [UIColor blueColor].CGColor;
+		l.strokeColor = [UIColor colorWithRed:frand() green:frand() blue:frand() alpha:1.0].CGColor;
 		l.lineWidth = 4.0;
 		l.lineJoin = kCALineJoinRound;
+		l.lineCap = kCALineCapRound;
 		[self.dataLines addSublayer:l];
 		if(wantsCustomization)
 			[delegate twoDGraphView:self customizeLine:l withIndex:i];
+		
+		NSString *labelString;
+		if(wantsLabel)
+			labelString = [delegate twoDGraphView:self labelForLineIndex:i];
+		if(wantsLabel && labelString) {
+			CGFloat atHeight = [self.legend.sublayers lastObject]?[(CALayer*)[self.legend.sublayers lastObject] frame].origin.y + 16 : 6;
+			
+			CAShapeLayer *plutt = [CAShapeLayer layer];
+			plutt.fillColor = nil;
+			plutt.strokeColor = l.strokeColor;
+			plutt.lineWidth = 4.0;
+			plutt.lineCap = kCALineCapRound;
+			CGMutablePathRef path = CGPathCreateMutable();
+			CGPathMoveToPoint(path, NULL, 0, 7.5);
+			CGPathAddLineToPoint(path, NULL, 10, 7.5);
+			plutt.path = path;
+			plutt.frame = CGRectMake(self.legend.frame.size.width-20, atHeight, 10, 15);
+
+			[self.legend addSublayer:plutt];
+			labelCount++;
+			
+			C3TextLayer *label = [C3TextLayer layerWithString:labelString];
+			label.frame = CGRectMake(5, atHeight, self.legend.frame.size.width-30, 15);
+			label.alignmentMode = UITextAlignmentRight;
+			label.verticalAlignmentMode = C3VerticalTextAlignmentCenter;
+			label.foregroundColor = [UIColor colorWithHue:0.580 saturation:0.35 brightness:0.55 alpha:1.0].CGColor;
+
+			label.font = [UIFont systemFontOfSize:11];
+			[self.legend addSublayer:label];
+			
+		}
 	}
+	
+#undef frand
+	
+	CGRect r = self.legend.frame;
+	r.size.height = 15*(labelCount) + 12;
+	self.legend.frame = r;
 		
 	for(int i = lineCount; i < self.dataLines.sublayers.count; i++)
 		[[self.dataLines.sublayers objectAtIndex:i] removeFromSuperlayer];
+	
+	
 	
 	NSRange y = [self yRange];
 	NSRange x = [self xRange];
