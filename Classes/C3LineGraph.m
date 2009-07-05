@@ -223,7 +223,7 @@ static float sidebarSize = 40;
 		
 		pen.origin.x += widthPerLabel;
 
-		
+
 		[self.xAxis insertSublayer:l below:xGrad];
 		[self.gridLines addSublayer:lg];
 	}
@@ -263,7 +263,9 @@ static float sidebarSize = 40;
 		
 		pen.origin.y -= heightPerLabel;
 		
-		[self.yAxis addSublayer:l];
+		// Don't add the last label as it'll be obscured anyway
+		if(i != tickMarkCount[kC3Graph_Axis_Y])
+			[self.yAxis addSublayer:l];
 		[self.gridLines addSublayer:lg];
 	}
 	
@@ -354,8 +356,12 @@ static float sidebarSize = 40;
 			if(first) {
 				CGPathMoveToPoint(path, NULL, p.x, p.y);
 				first = NO;
-			} else
+			} else {
 				CGPathAddLineToPoint(path, NULL, p.x, p.y);
+				CGPathAddEllipseInRect(path, NULL, CGRectMake(p.x-2, p.y-2, 4, 4));
+				CGPathMoveToPoint(path, NULL, p.x, p.y);
+			}
+				
 		}
 		
 		CAShapeLayer *lineLayer = [[self.dataLines sublayers] objectAtIndex:i];
