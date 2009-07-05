@@ -13,7 +13,7 @@
 <C3LineGraphDelegate, C3LineGraphDataSource>
 {
 	IBOutlet C3LineGraphView *graph;
-	NSArray *data;
+	NSArray *data, *myAverage, *worldAverage;
 }
 
 @end

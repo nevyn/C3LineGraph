@@ -49,6 +49,16 @@
 					nil
 				];
 	
+	myAverage = [[NSArray alloc] initWithObjects:
+							 pv(daysfromnow(30), score(8.55)),
+							 pv(daysfromnow(0), score(8.55)),
+							 nil];
+	
+	worldAverage = [[NSArray alloc] initWithObjects:
+									pv(daysfromnow(30), score(7.2)),
+									pv(daysfromnow(0), score(7.2)),
+									nil];
+	
 	[graph setNumberOfTickMarks:5 forAxis:kC3Graph_Axis_X];
 	[graph setNumberOfTickMarks:9 forAxis:kC3Graph_Axis_Y];
 	
@@ -89,11 +99,13 @@
 #pragma mark Graph callbacks
 - (NSUInteger)numberOfLinesInTwoDGraphView:(C3LineGraphView *)inGraphView;
 {
-	return 1;
+	return 3;
 }
 - (NSArray *)twoDGraphView:(C3LineGraphView *)inGraphView dataForLineIndex:(NSUInteger)inLineIndex;
 {
-	return data;
+	if(inLineIndex == 0) return data;
+	if(inLineIndex == 1) return myAverage;
+	return worldAverage;
 }
 
 - (CGFloat)twoDGraphView:(C3LineGraphView *)inGraphView
@@ -136,7 +148,10 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 			 customizeLine: (CAShapeLayer*)lineLayer
 					 withIndex:(NSUInteger)inLineIndex;
 {
-	lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+	if(inLineIndex == 0) lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+	if(inLineIndex == 1) lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
+	if(inLineIndex == 2) lineLayer.strokeColor = [UIColor colorWithHue:0.000 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
+	
 }
 
 @end
