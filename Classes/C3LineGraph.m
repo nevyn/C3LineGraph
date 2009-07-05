@@ -7,7 +7,7 @@
 //
 
 #import "C3LineGraph.h"
-#import "CATextLayer.h"
+#import "C3TextLayer.h"
 
 @interface C3LineGraphView ()
 @property (retain) CALayer *xAxis;
@@ -124,6 +124,7 @@ static float sidebarSize = 40;
 	self.dataLines = [CALayer layer];
 	pen.size.height -= sidebarSize;
 	self.dataLines.frame = pen;
+	self.dataLines.masksToBounds = YES;
 
 	pen = self.frame;
 	
@@ -172,13 +173,13 @@ static float sidebarSize = 40;
 																					forAxis:kC3Graph_Axis_X
 																		 defaultLabel:val] : [NSString stringWithFormat:@"%.2f", val];
 
-		CATextLayer *l = [CATextLayer layerWithString:tickLabel];
+		C3TextLayer *l = [C3TextLayer layerWithString:tickLabel];
 		CGRect pen2 = pen;
 		pen2.origin.x -= pen.size.width/2;
 		l.frame = pen2;
 		l.lineBreakMode = UILineBreakModeClip;
 		l.alignmentMode = UITextAlignmentCenter;
-		l.verticalAlignmentMode = UIVerticalTextAlignmentCenter;
+		l.verticalAlignmentMode = C3VerticalTextAlignmentCenter;
 
 				
 		CAShapeLayer *lg = [CAShapeLayer layer];
@@ -213,11 +214,11 @@ static float sidebarSize = 40;
 																										 defaultLabel:val] : [NSString stringWithFormat:@"%.2f", val];
 		CGRect pen2 = pen;
 		pen2.origin.y -= heightPerLabel/2.;
-		CATextLayer *l = [CATextLayer layerWithString:tickLabel];
+		C3TextLayer *l = [C3TextLayer layerWithString:tickLabel];
 		l.frame = pen2;
 		l.lineBreakMode = UILineBreakModeClip;
 		l.alignmentMode = UITextAlignmentCenter;
-		l.verticalAlignmentMode = UIVerticalTextAlignmentCenter;
+		l.verticalAlignmentMode = C3VerticalTextAlignmentCenter;
 		l.foregroundColor = [UIColor blackColor].CGColor;
 		
 		
@@ -303,6 +304,10 @@ static float sidebarSize = 40;
 	xAxisOldFrame.size.width = 0;
 	self.xAxis.frame = xAxisOldFrame;
 	
+	CGRect dataLinesOldFrame = self.dataLines.frame;
+	dataLinesOldFrame.size.width = 0;
+	self.dataLines.frame = dataLinesOldFrame;
+	
 	CGRect yAxisOldFrame = self.yAxis.frame;
 	yAxisOldFrame.size.width = 0;
 	self.yAxis.frame = yAxisOldFrame;
@@ -344,6 +349,11 @@ static float sidebarSize = 40;
 	CGRect xAxisNewFrame = self.xAxis.frame;
 	xAxisNewFrame.size.width = self.frame.size.width;
 	self.xAxis.frame = xAxisNewFrame;
+	
+	CGRect dataLinesNewFrame = self.dataLines.frame;
+	dataLinesNewFrame.size.width = self.frame.size.width;
+	self.dataLines.frame = dataLinesNewFrame;
+	
 	
 	[CATransaction commit];
 	

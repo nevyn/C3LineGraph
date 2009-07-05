@@ -10,18 +10,18 @@
 #import <QuartzCore/QuartzCore.h>
 
 typedef enum {
-	UIVerticalTextAlignmentTop = 0,
-	UIVerticalTextAlignmentCenter,
-	UIVerticalTextAlignmentBottom,
-} UIVerticalTextAlignment;
+	C3VerticalTextAlignmentTop = 0,
+	C3VerticalTextAlignmentCenter,
+	C3VerticalTextAlignmentBottom,
+} C3VerticalTextAlignment;
 
-@interface CATextLayer : CALayer {
+@interface C3TextLayer : CALayer {
 	NSString *string;
 	UIFont *font;
 	CGColorRef foregroundColor;
 	UILineBreakMode lineBreakMode;
 	UITextAlignment alignmentMode;
-	UIVerticalTextAlignment verticalAlignmentMode;
+	C3VerticalTextAlignment verticalAlignmentMode;
 }
 +(id)layerWithString:(NSString*)string_;
 -(id)initWithString:(NSString*)string_;
@@ -30,5 +30,5 @@ typedef enum {
 @property (nonatomic) CGColorRef foregroundColor;
 @property (nonatomic, assign) UILineBreakMode lineBreakMode;
 @property (nonatomic, assign) UITextAlignment alignmentMode;
-@property (nonatomic, assign) UIVerticalTextAlignment verticalAlignmentMode;
+@property (nonatomic, assign) C3VerticalTextAlignment verticalAlignmentMode;
 @end

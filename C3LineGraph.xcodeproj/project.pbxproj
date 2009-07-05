@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		05EC317F0FFCF2F70030DCF9 /* C3LineGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC317E0FFCF2F70030DCF9 /* C3LineGraph.m */; };
 		05EC31B70FFD06FF0030DCF9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC31B60FFD06FF0030DCF9 /* QuartzCore.framework */; };
-		05EC32490FFE0B490030DCF9 /* CATextLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC32480FFE0B490030DCF9 /* CATextLayer.m */; };
+		05EC32490FFE0B490030DCF9 /* C3TextLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC32480FFE0B490030DCF9 /* C3TextLayer.m */; };
 		1D3623260D0F684500981E51 /* C3LineGraphAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* C3LineGraphAppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
@@ -24,8 +24,8 @@
 		05EC317D0FFCF2F70030DCF9 /* C3LineGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C3LineGraph.h; sourceTree = "<group>"; };
 		05EC317E0FFCF2F70030DCF9 /* C3LineGraph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C3LineGraph.m; sourceTree = "<group>"; };
 		05EC31B60FFD06FF0030DCF9 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
-		05EC32470FFE0B490030DCF9 /* CATextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATextLayer.h; sourceTree = "<group>"; };
-		05EC32480FFE0B490030DCF9 /* CATextLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATextLayer.m; sourceTree = "<group>"; };
+		05EC32470FFE0B490030DCF9 /* C3TextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C3TextLayer.h; sourceTree = "<group>"; };
+		05EC32480FFE0B490030DCF9 /* C3TextLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C3TextLayer.m; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* C3LineGraphAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = C3LineGraphAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* C3LineGraphAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = C3LineGraphAppDelegate.m; sourceTree = "<group>"; };
@@ -65,8 +65,8 @@
 				28D7ACF70DDB3853001CB0EB /* C3LineGraphViewController.m */,
 				05EC317D0FFCF2F70030DCF9 /* C3LineGraph.h */,
 				05EC317E0FFCF2F70030DCF9 /* C3LineGraph.m */,
-				05EC32470FFE0B490030DCF9 /* CATextLayer.h */,
-				05EC32480FFE0B490030DCF9 /* CATextLayer.m */,
+				05EC32470FFE0B490030DCF9 /* C3TextLayer.h */,
+				05EC32480FFE0B490030DCF9 /* C3TextLayer.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -179,7 +179,7 @@
 				1D3623260D0F684500981E51 /* C3LineGraphAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* C3LineGraphViewController.m in Sources */,
 				05EC317F0FFCF2F70030DCF9 /* C3LineGraph.m in Sources */,
-				05EC32490FFE0B490030DCF9 /* CATextLayer.m in Sources */,
+				05EC32490FFE0B490030DCF9 /* C3TextLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

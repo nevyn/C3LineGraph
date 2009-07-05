@@ -6,10 +6,10 @@
 //  Copyright 2009 Third Cog Software. All rights reserved.
 //
 
-#import "CATextLayer.h"
+#import "C3TextLayer.h"
 
 
-@implementation CATextLayer
+@implementation C3TextLayer
 @synthesize string, font, foregroundColor, alignmentMode, lineBreakMode, verticalAlignmentMode;
 -(void)setString:(NSString *)string_;
 {
@@ -41,7 +41,7 @@
 	lineBreakMode = lineBreakMode_;
 	[self setNeedsDisplay];
 }
--(void)setVerticalAlignmentMode:(UIVerticalTextAlignment)verticalAlignmentMode_;
+-(void)setVerticalAlignmentMode:(C3VerticalTextAlignment)verticalAlignmentMode_;
 {
 	verticalAlignmentMode = verticalAlignmentMode_;
 	[self setNeedsDisplay];
@@ -74,14 +74,14 @@
 	CGContextSetFillColorWithColor(ctx, self.foregroundColor);
 	
 	CGRect pen = self.bounds;
-	if(verticalAlignmentMode == UIVerticalTextAlignmentTop) {
+	if(verticalAlignmentMode == C3VerticalTextAlignmentTop) {
 		pen.origin = CGPointMake(0, 0);		
-	} else if (verticalAlignmentMode == UIVerticalTextAlignmentCenter) {
+	} else if (verticalAlignmentMode == C3VerticalTextAlignmentCenter) {
 		CGSize size = [string sizeWithFont:self.font forWidth:pen.size.width lineBreakMode:self.lineBreakMode];
 		pen.origin.x = 0;
 		pen.origin.y = pen.size.height/2 - size.height/2;
 	} else {
-		[NSException raise:@"NSNotImplementedException" format:@"UIVerticalTextAlignmentBottom not implemented"];
+		[NSException raise:@"NSNotImplementedException" format:@"C3VerticalTextAlignmentBottom not implemented"];
 	}
 
 		
