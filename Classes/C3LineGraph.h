@@ -44,8 +44,8 @@ typedef enum
 #pragma mark 
 #pragma mark Callbacks
 
-@property (nonatomic, retain) id<NSObject, C3LineGraphDataSource> dataSource;
-@property (nonatomic, retain) id<NSObject, C3LineGraphDelegate> delegate;
+@property (nonatomic, assign) id<NSObject, C3LineGraphDataSource> dataSource;
+@property (nonatomic, assign) id<NSObject, C3LineGraphDelegate> delegate;
 
 #pragma mark 
 #pragma mark Looks

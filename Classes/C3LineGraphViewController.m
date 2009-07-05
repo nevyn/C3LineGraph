@@ -8,92 +8,75 @@
 
 #import "C3LineGraphViewController.h"
 
+@interface DataPoint : NSObject
+{
+	NSDate *when;
+	int ident;
+	int score;
+}
++:when_ :(int)score_ :(int)ident;
+@property (retain) NSDate *when;
+@property (assign) int ident;
+@property (assign) int score;
+@end
+@implementation DataPoint
+@synthesize when, ident, score;
++:when_ :(int)score_ :(int)ident_;
+{
+	DataPoint *p = [[[DataPoint alloc] init] autorelease];
+	p.when = when_; p.ident = ident_; p.score = score_;
+	return p;
+}
+-(void)dealloc; {
+	self.when = nil;
+	[super dealloc];
+}
+@end
+
+
 @implementation C3LineGraphViewController
 
-
-
-/*
- // The designated initializer. Override to perform setup that is required before the view is loaded.
- - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
- if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
- // Custom initialization
- }
- return self;
- }
- */
-
-/*
- // Implement loadView to create a view hierarchy programmatically, without using a nib.
- - (void)loadView {
- }
- */
-
-#define score(i) i
-#define daysfromnow(i) [[NSDate dateWithTimeIntervalSinceNow:-i*60*60*24] timeIntervalSinceReferenceDate]
-#define pv(x, y) [NSValue valueWithCGPoint:CGPointMake(x, y)]
+#define daysfromnow(i) [NSDate dateWithTimeIntervalSinceNow:-i*60*60*24]
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
   [super viewDidLoad];
-	
-	data = [[NSArray alloc] initWithObjects:
-					pv(daysfromnow(30), score(4)),
-					pv(daysfromnow(26), score(6)),
-					pv(daysfromnow(20), score(9)),
-					pv(daysfromnow(16), score(2)),
-					pv(daysfromnow(15), score(12)),
-					pv(daysfromnow(14), score(16)),
-					pv(daysfromnow(8), score(9)),
-					pv(daysfromnow(1), score(10)),
-					pv(daysfromnow(0), score(9)),
-					nil
-				];
-	
-	myAverage = [[NSArray alloc] initWithObjects:
-							 pv(daysfromnow(30), score(8.55)),
-							 pv(daysfromnow(0), score(8.55)),
-							 nil];
-	
-	worldAverage = [[NSArray alloc] initWithObjects:
-									pv(daysfromnow(30), score(7.2)),
-									pv(daysfromnow(0), score(7.2)),
-									nil];
-	
+
+	data[EveryQuiz] = [[NSArray alloc] initWithObjects:
+										 [DataPoint :daysfromnow(30) :4 :0],
+										 [DataPoint :daysfromnow(30) :6 :1],
+										 [DataPoint :daysfromnow(30) :9 :2],
+										 [DataPoint :daysfromnow(30) :2 :3],
+										 [DataPoint :daysfromnow(15) :12 :4],
+										 [DataPoint :daysfromnow(14) :16 :5],
+										 [DataPoint :daysfromnow(8) :9 :6],
+										 [DataPoint :daysfromnow(1) :10 :7],
+										 [DataPoint :daysfromnow(0) :9 :8],
+										nil];
+	data[MyAverage] = [[NSArray alloc] initWithObjects:
+										 [DataPoint :[NSDate distantPast] :8.55 :-1],
+										 [DataPoint :[NSDate distantFuture]  :8.55 :9],
+										nil];
+	data[WorldAverage] = [[NSArray alloc] initWithObjects:
+												[DataPoint :[NSDate distantPast] :7.2 :-1],
+												[DataPoint :[NSDate distantFuture] :7.2 :9],
+											nil];
+
 	[graph setNumberOfTickMarks:5 forAxis:kC3Graph_Axis_X];
 	[graph setNumberOfTickMarks:9 forAxis:kC3Graph_Axis_Y];
 	
 	[graph relayout];
 	
 }
-#undef score
 #undef daysfromnow
-#undef pv
-
-
-/*
- // Override to allow orientations other than the default portrait orientation.
- - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
- // Return YES for supported orientations
- return (interfaceOrientation == UIInterfaceOrientationPortrait);
- }
- */
-
-- (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
-	[super didReceiveMemoryWarning];
-	
-	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-}
-
-
-- (void)dealloc {
+-(void)dealloc;
+{
+	[data[EveryQuiz] release];
+	[data[MyAverage] release];
+	[data[WorldAverage] release];
 	[super dealloc];
 }
+
 
 #pragma mark
 #pragma mark Graph callbacks
@@ -103,9 +86,11 @@
 }
 - (NSArray *)twoDGraphView:(C3LineGraphView *)inGraphView dataForLineIndex:(NSUInteger)inLineIndex;
 {
-	if(inLineIndex == 0) return data;
-	if(inLineIndex == 1) return myAverage;
-	return worldAverage;
+	NSMutableArray *ma = [NSMutableArray array];
+	for (DataPoint *p in data[inLineIndex])
+		[ma addObject:[NSValue valueWithCGPoint:CGPointMake(p.ident, p.score)]];
+	
+	return ma;
 }
 
 - (CGFloat)twoDGraphView:(C3LineGraphView *)inGraphView
@@ -113,7 +98,7 @@ maximumValueForLineIndex:(NSUInteger)inLineIndex
 								 forAxis:(C3GraphAxisEnum)inAxis;
 {
 	if(inAxis == kC3Graph_Axis_X)
-		return [(NSValue*)[data lastObject] CGPointValue].x;
+		return [[data[EveryQuiz] lastObject] ident];
 	return 18;
 }
 
@@ -122,9 +107,7 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 								 forAxis:(C3GraphAxisEnum)inAxis;
 {
 	if(inAxis == kC3Graph_Axis_X)
-		return [(NSValue*)[data objectAtIndex:0] CGPointValue].x;
-	
-
+		return [[data[EveryQuiz] objectAtIndex:0] ident];
 	return 0;
 }
 
@@ -134,7 +117,11 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 							 defaultLabel:(float)inVal;
 {
 	if(inAxis == kC3Graph_Axis_X) {
-		NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate:inVal];
+		// This won't work if the DataPoint doesn't have the same ident as its index
+		// in the data array.
+		
+		DataPoint *p = [data[EveryQuiz] objectAtIndex:inVal];
+		NSDate *date = p.when;
 		NSDateFormatter *formatter = [[[NSDateFormatter alloc] init] autorelease];
 		[formatter setDateFormat:@"d MMMM"];
 	

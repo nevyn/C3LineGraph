@@ -9,11 +9,18 @@
 #import <UIKit/UIKit.h>
 #import "C3LineGraph.h"
 
+enum {
+	EveryQuiz = 0,
+	MyAverage = 1,
+	WorldAverage = 2,
+	GraphCount,
+};
+
 @interface C3LineGraphViewController : UIViewController
 <C3LineGraphDelegate, C3LineGraphDataSource>
 {
 	IBOutlet C3LineGraphView *graph;
-	NSArray *data, *myAverage, *worldAverage;
+	NSArray *data[GraphCount];
 }
 
 @end

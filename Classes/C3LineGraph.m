@@ -22,9 +22,10 @@
 
 
 @implementation C3LineGraphView
--(void)awakeFromNib
+-(void)dealloc;
 {
-
+	self.gridColor = nil;
+	[super dealloc];
 }
 @synthesize dataSource, delegate;
 @synthesize xAxis, yAxis, gridLines, dataLines, background, legend;
