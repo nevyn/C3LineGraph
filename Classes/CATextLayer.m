@@ -10,7 +10,7 @@
 
 
 @implementation CATextLayer
-@synthesize string, font, foregroundColor, alignmentMode, lineBreakMode;
+@synthesize string, font, foregroundColor, alignmentMode, lineBreakMode, verticalAlignmentMode;
 -(void)setString:(NSString *)string_;
 {
 	[string release];
@@ -41,6 +41,12 @@
 	lineBreakMode = lineBreakMode_;
 	[self setNeedsDisplay];
 }
+-(void)setVerticalAlignmentMode:(UIVerticalTextAlignment)verticalAlignmentMode_;
+{
+	verticalAlignmentMode = verticalAlignmentMode_;
+	[self setNeedsDisplay];
+}
+
 
 +(id)layerWithString:(NSString*)string_;
 {
@@ -68,7 +74,16 @@
 	CGContextSetFillColorWithColor(ctx, self.foregroundColor);
 	
 	CGRect pen = self.bounds;
-	pen.origin = CGPointMake(0, 0);
+	if(verticalAlignmentMode == UIVerticalTextAlignmentTop) {
+		pen.origin = CGPointMake(0, 0);		
+	} else if (verticalAlignmentMode == UIVerticalTextAlignmentCenter) {
+		CGSize size = [string sizeWithFont:self.font forWidth:pen.size.width lineBreakMode:self.lineBreakMode];
+		pen.origin.x = 0;
+		pen.origin.y = pen.size.height/2 - size.height/2;
+	} else {
+		[NSException raise:@"NSNotImplementedException" format:@"UIVerticalTextAlignmentBottom not implemented"];
+	}
+
 		
 	[string drawInRect:pen withFont:self.font lineBreakMode:self.lineBreakMode alignment:self.alignmentMode ];
 	UIGraphicsPopContext();

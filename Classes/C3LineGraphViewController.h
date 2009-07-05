@@ -13,6 +13,7 @@
 <C3LineGraphDelegate, C3LineGraphDataSource>
 {
 	IBOutlet C3LineGraphView *graph;
+	NSArray *data;
 }
 
 @end

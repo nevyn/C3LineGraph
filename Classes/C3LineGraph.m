@@ -101,6 +101,7 @@
 	return NSMakeRange(miny, maxy-miny);
 }
 
+static float sidebarSize = 40;
 -(void)relayout;
 {
 	// Clear out any previous layout. Preferably, we would transition to the new
@@ -111,6 +112,8 @@
 	
 	// Setup the container layers
 	
+
+	
 	// gridLines
 	CGRect pen = self.frame;
 	self.gridLines = [CALayer layer];
@@ -119,11 +122,13 @@
 	
 	// dataLines
 	self.dataLines = [CALayer layer];
-	self.gridLines.frame = self.frame;
+	pen.size.height -= sidebarSize;
+	self.dataLines.frame = pen;
 
+	pen = self.frame;
 	
 	// xAxis
-	pen.size.height = 40;
+	pen.size.height = sidebarSize;
 	pen.origin.y = self.frame.size.height-pen.size.height;
 	self.xAxis = [CALayer layer];
 	self.xAxis.opacity = 0.8;
@@ -135,7 +140,7 @@
 	self.yAxis.masksToBounds = YES;
 	self.yAxis.opacity = 0.6;
 	pen = self.frame;
-	pen.size.width = 40;
+	pen.size.width = sidebarSize;
 	pen.origin.y = 0;
 	self.yAxis.frame = pen;
 	self.yAxis.backgroundColor = [UIColor greenColor].CGColor;
@@ -143,8 +148,7 @@
 	
 	
 	// Figure out our min and max values
-	int lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
-	float minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
+	float minx, miny, maxx, maxy;
 	NSRange xRange = [self xRange];
 	minx = xRange.location;
 	maxx = xRange.location + xRange.length;
@@ -157,12 +161,11 @@
 	float stepx = (maxx-minx)/tickMarkCount[kC3Graph_Axis_X];
 	BOOL doFetchLabels = [delegate respondsToSelector:@selector(twoDGraphView:labelForTickMarkIndex:forAxis:defaultLabel:)];
 	
-	float margin = 5;
-	float widthPerLabel = (self.frame.size.width - margin*2)/tickMarkCount[kC3Graph_Axis_X] - margin;
-	pen = CGRectMake(10, 10, widthPerLabel, 20);
+	float widthPerLabel = self.frame.size.width/tickMarkCount[kC3Graph_Axis_X];
+	pen = CGRectMake(0, 0, widthPerLabel, sidebarSize);
 	
 	
-	for(int i = 0; i < tickMarkCount[kC3Graph_Axis_X]; i++) {
+	for(int i = 0; i < tickMarkCount[kC3Graph_Axis_X]+1; i++) {
 		float val = minx + stepx*i;
 		NSString *tickLabel = doFetchLabels ? [delegate twoDGraphView:self
 														labelForTickMarkIndex:i
@@ -170,22 +173,26 @@
 																		 defaultLabel:val] : [NSString stringWithFormat:@"%.2f", val];
 
 		CATextLayer *l = [CATextLayer layerWithString:tickLabel];
-		l.frame = pen;
+		CGRect pen2 = pen;
+		pen2.origin.x -= pen.size.width/2;
+		l.frame = pen2;
 		l.lineBreakMode = UILineBreakModeClip;
 		l.alignmentMode = UITextAlignmentCenter;
-		
-		pen.origin.x += widthPerLabel + margin;
-		
-		CGFloat lineO = pen.origin.x;
-		lineO -= pen.size.width/2;
+		l.verticalAlignmentMode = UIVerticalTextAlignmentCenter;
+
+				
 		CAShapeLayer *lg = [CAShapeLayer layer];
 		CGMutablePathRef pa = CGPathCreateMutable();
-		CGPathMoveToPoint(pa, NULL, lineO, 0);
-		CGPathAddLineToPoint(pa, NULL, lineO, self.frame.size.height);
+		CGPathMoveToPoint(pa, NULL, pen.origin.x, 0);
+		CGPathAddLineToPoint(pa, NULL, pen.origin.x, self.frame.size.height);
 		lg.path = pa;
 		CGPathRelease(pa);
 		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.8 alpha:1.0].CGColor;
-		[lg setName:[NSString stringWithFormat:@"XAxis %f", lineO]];
+		[lg setName:[NSString stringWithFormat:@"XAxis %f", pen.origin.y]];
+		
+		
+		pen.origin.x += widthPerLabel;
+
 		
 		[self.xAxis addSublayer:l];
 		[self.gridLines addSublayer:lg];
@@ -194,37 +201,37 @@
 	
 	// Add labels and gridlines along y axis
 	float stepy = (maxy-miny)/tickMarkCount[kC3Graph_Axis_Y];
-	float heightPerLabel = (self.frame.size.height - 40 - margin*2)/tickMarkCount[kC3Graph_Axis_Y] - margin;
+	float heightPerLabel = (self.frame.size.height - sidebarSize)/tickMarkCount[kC3Graph_Axis_Y];
 	
-	pen = CGRectMake(5, self.frame.size.height-30 - 40, 30, 20);
+	pen = CGRectMake(5, self.frame.size.height - sidebarSize, 30, heightPerLabel);
 	
-	for(int i = 0; i < tickMarkCount[kC3Graph_Axis_Y]; i++) {
+	for(int i = 0; i < tickMarkCount[kC3Graph_Axis_Y]+1; i++) {
 		float val = miny + stepy*i;
 		NSString *tickLabel = doFetchLabels ? [delegate twoDGraphView:self
 																						labelForTickMarkIndex:i
 																													forAxis:kC3Graph_Axis_Y
 																										 defaultLabel:val] : [NSString stringWithFormat:@"%.2f", val];
-		
+		CGRect pen2 = pen;
+		pen2.origin.y -= heightPerLabel/2.;
 		CATextLayer *l = [CATextLayer layerWithString:tickLabel];
-		l.frame = pen;
+		l.frame = pen2;
 		l.lineBreakMode = UILineBreakModeClip;
 		l.alignmentMode = UITextAlignmentCenter;
+		l.verticalAlignmentMode = UIVerticalTextAlignmentCenter;
 		l.foregroundColor = [UIColor blackColor].CGColor;
 		
 		
-		CGFloat lineO = pen.origin.y;
-		lineO += pen.size.height/2 + 0.5 - 2;
 		CAShapeLayer *lg = [CAShapeLayer layer];
 		CGMutablePathRef pa = CGPathCreateMutable();
-		CGPathMoveToPoint(pa, NULL, 0, lineO);
-		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, lineO);
+		CGPathMoveToPoint(pa, NULL, 0, pen.origin.y);
+		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, pen.origin.y);
 		lg.path = pa;
 		CGPathRelease(pa);
 		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.9 alpha:1.0].CGColor;
-		[lg setName:[NSString stringWithFormat:@"YAxis %f", lineO]];
+		[lg setName:[NSString stringWithFormat:@"YAxis %f", pen.origin.y]];
 		
 		
-		pen.origin.y -= heightPerLabel + margin;
+		pen.origin.y -= heightPerLabel;
 		
 		[self.yAxis addSublayer:l];
 		[self.gridLines addSublayer:lg];
@@ -242,6 +249,10 @@
 	NSUInteger lineCount = [dataSource numberOfLinesInTwoDGraphView:self];
 	for(int i = self.dataLines.sublayers.count; i < lineCount; i++) {
 		CAShapeLayer *l = [CAShapeLayer layer];
+		l.fillColor = nil;
+		l.strokeColor = [UIColor blueColor].CGColor;
+		l.lineWidth = 4.0;
+		l.lineJoin = kCALineJoinRound;
 		[self.dataLines addSublayer:l];
 		if(wantsCustomization)
 			[delegate twoDGraphView:self customizeLine:l withIndex:i];
@@ -256,14 +267,15 @@
 	for (int i = 0; i < lineCount; i++) {
 		NSArray *values = [dataSource twoDGraphView:self dataForLineIndex:i];
 		
-		CGPathRef path = CGPathCreateMutable();
+		CGMutablePathRef path = CGPathCreateMutable();
 		BOOL first = YES;
 		for (NSValue *coordVal in values) {
 			CGPoint p = coordVal.CGPointValue;
-			p.x += x.location;
-			p.y += y.location;
+			p.x -= x.location;
+			p.y -= y.location;
 			p.x /= x.length;
 			p.y /= y.length;
+			p.y = 1.0 - p.y;
 			p.x *= self.dataLines.frame.size.width;
 			p.y *= self.dataLines.frame.size.height;
 			if(first) {
@@ -340,7 +352,7 @@
 									 forKey:kCATransactionAnimationDuration];
 	
 	CGRect yAxisNewFrame = self.yAxis.frame;
-	yAxisNewFrame.size.width = 40;
+	yAxisNewFrame.size.width = sidebarSize;
 	self.yAxis.frame = yAxisNewFrame;
 	
 	for (CALayer *label in self.yAxis.sublayers) {

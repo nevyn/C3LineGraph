@@ -9,12 +9,19 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+typedef enum {
+	UIVerticalTextAlignmentTop = 0,
+	UIVerticalTextAlignmentCenter,
+	UIVerticalTextAlignmentBottom,
+} UIVerticalTextAlignment;
+
 @interface CATextLayer : CALayer {
 	NSString *string;
 	UIFont *font;
 	CGColorRef foregroundColor;
 	UILineBreakMode lineBreakMode;
 	UITextAlignment alignmentMode;
+	UIVerticalTextAlignment verticalAlignmentMode;
 }
 +(id)layerWithString:(NSString*)string_;
 -(id)initWithString:(NSString*)string_;
@@ -23,4 +30,5 @@
 @property (nonatomic) CGColorRef foregroundColor;
 @property (nonatomic, assign) UILineBreakMode lineBreakMode;
 @property (nonatomic, assign) UITextAlignment alignmentMode;
+@property (nonatomic, assign) UIVerticalTextAlignment verticalAlignmentMode;
 @end
