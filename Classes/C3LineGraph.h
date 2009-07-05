@@ -48,7 +48,7 @@ typedef enum
 
 #pragma mark 
 #pragma mark Looks
-
+// For now, set all the looks BEFORE calling relayout. Yes, this should be automatic...
 
 @property (nonatomic, retain) UIColor *gridColor;
 
@@ -63,9 +63,10 @@ typedef enum
 - (NSInteger)numberOfMinorTickMarksForAxis:(C3GraphAxisEnum)inAxis;*/
 
 
-
+// Data or looks changed; activate!
 -(void)relayout;
 -(void)reloadData;
+
 
 /*!	@method	convertPoint:fromView:toLineIndex:
  @discussion Converts a point from a given window/view coordinate system to a point in the coordinate system
@@ -170,6 +171,14 @@ typedef enum
 			 customizeLine: (CAShapeLayer*)lineLayer
 					 withIndex:(NSUInteger)inLineIndex;
 
+/*! @method twoDGraphView:labelForLineIndex:
+ @discussion Label to be shown in the legend. Return nil to remove from legend.
+ */
+-(NSString*)twoDGraphView:(C3LineGraphView *)inGraphView
+				labelForLineIndex:(NSUInteger)inLineIndex;
+
+
+
 /*!	@method	twoDGraphView:didClickPoint:
  @discussion <b>Implementing this method is optional.</b>  The delegate has a chance to respond to the user
  clicking the mouse in the graph paper area of the view.
@@ -179,6 +188,6 @@ typedef enum
  @param	inGraphView		The graph view making the call.
  @param	inPoint			The clicked position in the graph view coordinate system.
  */
-- (void)twoDGraphView:(C3LineGraphView *)inGraphView didClickPoint:(CGPoint)inPoint;
+/*- (void)twoDGraphView:(C3LineGraphView *)inGraphView didClickPoint:(CGPoint)inPoint;*/
 
 @end

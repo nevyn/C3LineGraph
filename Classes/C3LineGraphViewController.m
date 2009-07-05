@@ -151,7 +151,13 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 	if(inLineIndex == 0) lineLayer.strokeColor = [UIColor colorWithHue:0.300 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
 	if(inLineIndex == 1) lineLayer.strokeColor = [UIColor colorWithHue:0.300 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
 	if(inLineIndex == 2) lineLayer.strokeColor = [UIColor colorWithHue:0.650 saturation:0.85 brightness:0.65 alpha:0.4].CGColor;
-	
+}
+-(NSString*)twoDGraphView:(C3LineGraphView *)inGraphView
+				labelForLineIndex:(NSUInteger)inLineIndex;
+{
+	if(inLineIndex == 0) return nil;
+	if(inLineIndex == 1) return @"Ditt medel";
+	return @"Sveriges medel";
 }
 
 @end
