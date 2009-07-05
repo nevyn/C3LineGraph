@@ -14,6 +14,7 @@
 @property (retain) CALayer *yAxis;
 @property (retain) CALayer *gridLines;
 @property (retain) CALayer *dataLines;
+@property (retain) CAGradientLayer *background;
 -(void)animateIntoPlace;
 -(NSArray*)gridLines:(NSString*)axisName;
 @end
@@ -25,31 +26,20 @@
 
 }
 @synthesize dataSource, delegate;
-@synthesize xAxis, yAxis, gridLines, dataLines;
--(void)setXAxis:(CALayer*)xAxis_; {
-	if(xAxis == xAxis_) return;
-	[self.layer addSublayer:xAxis_];
-	[xAxis removeFromSuperlayer];
-	xAxis = xAxis_;
+@synthesize xAxis, yAxis, gridLines, dataLines, background;
+#define layerSetter(UName, lName, LayerClass) \
+-(void)set##UName:(LayerClass*)newArg; { \
+  if(lName == newArg) return; \
+  [self.layer addSublayer:newArg]; \
+  [lName removeFromSuperlayer]; \
+   lName = newArg; \
 }
--(void)setYAxis:(CALayer*)yAxis_; {
-	if(yAxis == yAxis_) return;
-	[self.layer addSublayer:yAxis_];
-	[yAxis removeFromSuperlayer];
-	yAxis = yAxis_;
-}
--(void)setGridLines:(CALayer*)gridLines_; {
-	if(gridLines == gridLines_) return;
-	[self.layer addSublayer:gridLines_];
-	[gridLines removeFromSuperlayer];
-	gridLines = gridLines_;
-}
--(void)setDataLines:(CALayer*)dataLines_; {
-	if(dataLines == dataLines_) return;
-	[self.layer addSublayer:dataLines_];
-	[dataLines removeFromSuperlayer];
-	dataLines = dataLines_;
-}
+layerSetter(XAxis, xAxis, CALayer);
+layerSetter(YAxis, yAxis, CALayer);
+layerSetter(GridLines, gridLines, CALayer);
+layerSetter(DataLines, dataLines, CALayer);
+layerSetter(Background, background, CAGradientLayer);
+
 
 
 - (void)setNumberOfTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
@@ -100,6 +90,15 @@
 		maxy = MAX(maxy, [dataSource twoDGraphView:self maximumValueForLineIndex:i forAxis:kC3Graph_Axis_Y]);
 	return NSMakeRange(miny, maxy-miny);
 }
+-(NSArray*)xLabels;
+{
+	NSMutableArray *labels = [NSMutableArray array];
+	for (CALayer *l in self.xAxis.sublayers) {
+		if(l == xGrad) continue;
+		[labels addObject:l];
+	}
+	return labels;
+}
 
 static float sidebarSize = 40;
 -(void)relayout;
@@ -107,17 +106,23 @@ static float sidebarSize = 40;
 	// Clear out any previous layout. Preferably, we would transition to the new
 	// settings instead of just ripping out all the old an putting new stuff in
 	// there, but that's for another time, when there is time to be had.
-	self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
+	self.background = self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
 	
 	
 	// Setup the container layers
 	
+	CGRect pen = self.frame;
+	pen.origin = CGPointMake(0, 0);
 
+	self.background = [CAGradientLayer layer];
+	self.background.frame = pen;
+	self.background.colors = [NSArray arrayWithObjects:
+														(id)[UIColor colorWithHue:0.580 saturation:0.09 brightness:0.95 alpha:1.0].CGColor,
+														(id)[UIColor colorWithHue:0.580 saturation:0.15 brightness:0.93 alpha:1.0].CGColor,
+														nil];
 	
 	// gridLines
-	CGRect pen = self.frame;
 	self.gridLines = [CALayer layer];
-	pen.origin = CGPointMake(0, 0);
 	self.gridLines.frame = self.frame;
 	
 	// dataLines
@@ -134,7 +139,17 @@ static float sidebarSize = 40;
 	self.xAxis = [CALayer layer];
 	self.xAxis.opacity = 0.8;
 	self.xAxis.frame = pen;
-	self.xAxis.backgroundColor = [UIColor redColor].CGColor;
+	self.xAxis.backgroundColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+	self.xAxis.masksToBounds = YES;
+	
+	// xAxis gradient
+	xGrad = [CAGradientLayer layer];
+	xGrad.colors = [NSArray	arrayWithObjects:
+										(id)[UIColor colorWithWhite:1.0 alpha:0.55].CGColor,
+										(id)[UIColor colorWithWhite:1.0 alpha:0.06].CGColor,
+									nil];
+	xGrad.frame = CGRectMake(0, 0, self.xAxis.frame.size.width, self.xAxis.frame.size.height);
+	[self.xAxis addSublayer:xGrad];
 	
 	// yAxis
 	self.yAxis = [CALayer layer];
@@ -144,7 +159,7 @@ static float sidebarSize = 40;
 	pen.size.width = sidebarSize;
 	pen.origin.y = 0;
 	self.yAxis.frame = pen;
-	self.yAxis.backgroundColor = [UIColor greenColor].CGColor;
+	self.yAxis.backgroundColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
 	
 	
 	
@@ -181,21 +196,22 @@ static float sidebarSize = 40;
 		l.alignmentMode = UITextAlignmentCenter;
 		l.verticalAlignmentMode = C3VerticalTextAlignmentCenter;
 
-				
+		
+		CGFloat x = (int)(pen.origin.x)+0.5; // Center on a pixel
 		CAShapeLayer *lg = [CAShapeLayer layer];
 		CGMutablePathRef pa = CGPathCreateMutable();
-		CGPathMoveToPoint(pa, NULL, pen.origin.x, 0);
-		CGPathAddLineToPoint(pa, NULL, pen.origin.x, self.frame.size.height);
+		CGPathMoveToPoint(pa, NULL, x, 0);
+		CGPathAddLineToPoint(pa, NULL, x, self.frame.size.height);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.8 alpha:1.0].CGColor;
-		[lg setName:[NSString stringWithFormat:@"XAxis %f", pen.origin.y]];
+		lg.strokeColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.99 alpha:0.6].CGColor;
+		[lg setName:[NSString stringWithFormat:@"XAxis %f", pen.origin.x]];
 		
 		
 		pen.origin.x += widthPerLabel;
 
 		
-		[self.xAxis addSublayer:l];
+		[self.xAxis insertSublayer:l below:xGrad];
 		[self.gridLines addSublayer:lg];
 	}
 	
@@ -219,16 +235,16 @@ static float sidebarSize = 40;
 		l.lineBreakMode = UILineBreakModeClip;
 		l.alignmentMode = UITextAlignmentCenter;
 		l.verticalAlignmentMode = C3VerticalTextAlignmentCenter;
-		l.foregroundColor = [UIColor blackColor].CGColor;
 		
 		
+		CGFloat y = (int)(pen.origin.y)+0.5; // Center on a pixel
 		CAShapeLayer *lg = [CAShapeLayer layer];
 		CGMutablePathRef pa = CGPathCreateMutable();
-		CGPathMoveToPoint(pa, NULL, 0, pen.origin.y);
-		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, pen.origin.y);
+		CGPathMoveToPoint(pa, NULL, 0, y);
+		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, y);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor colorWithHue:0 saturation:0 brightness:0.9 alpha:1.0].CGColor;
+		lg.strokeColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.99 alpha:0.6].CGColor;
 		[lg setName:[NSString stringWithFormat:@"YAxis %f", pen.origin.y]];
 		
 		
@@ -294,7 +310,7 @@ static float sidebarSize = 40;
 
 -(void)animateIntoPlace;
 {
-	for (CALayer *label in self.xAxis.sublayers) {
+	for (CALayer *label in self.xLabels) {
 		label.opacity = 0.0;
 	}
 	for (CALayer *label in self.yAxis.sublayers) {
@@ -321,11 +337,11 @@ static float sidebarSize = 40;
 -(void)animate2;
 {
 	float animationDuration = 1.0;
-	int labelCount = self.xAxis.sublayers.count;
+	int labelCount = self.xLabels.count;
 	float labelStep = animationDuration/labelCount;
 	float clock = 0.0;
 	for(int i = 0; i < tickMarkCount[kC3Graph_Axis_X]; i++) {
-		CALayer *label = [self.xAxis.sublayers objectAtIndex:i];
+		CALayer *label = [self.xLabels objectAtIndex:i];
 		CALayer *line = [[self gridLines:@"XAxis"] objectAtIndex:i];
 		
 		CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"opacity"];

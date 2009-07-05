@@ -132,5 +132,11 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 	}
 
 }
+-(void)twoDGraphView:(C3LineGraphView *)inGraphView
+			 customizeLine: (CAShapeLayer*)lineLayer
+					 withIndex:(NSUInteger)inLineIndex;
+{
+	lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+}
 
 @end

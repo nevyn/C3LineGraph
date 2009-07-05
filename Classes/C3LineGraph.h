@@ -31,9 +31,11 @@ typedef enum
 	NSInteger minorTickMarkCount[kC3Graph_AxisCount];
 	
 	CALayer *xAxis;
+	CAGradientLayer *xGrad;
 	CALayer *yAxis;
 	CALayer *gridLines;
 	CALayer *dataLines;
+	CAGradientLayer *background;
 	BOOL hasAnimated;	
 }
 
