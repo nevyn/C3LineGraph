@@ -36,6 +36,7 @@ typedef enum
 	CALayer *gridLines;
 	CALayer *dataLines;
 	CAGradientLayer *background;
+	UIColor *gridColor;
 	BOOL hasAnimated;	
 }
 
@@ -49,6 +50,7 @@ typedef enum
 #pragma mark Looks
 
 
+@property (nonatomic, retain) UIColor *gridColor;
 
 /*!	@method	setNumberOfTickMarks:forAxis:
  @discussion Sets the number of major tick marks for an axis.  The default is no tick marks.
@@ -59,6 +61,8 @@ typedef enum
 - (NSInteger)numberOfTickMarksForAxis:(C3GraphAxisEnum)inAxis;
 /*- (void)setNumberOfMinorTickMarks:(NSInteger)count forAxis:(C3GraphAxisEnum)inAxis;
 - (NSInteger)numberOfMinorTickMarksForAxis:(C3GraphAxisEnum)inAxis;*/
+
+
 
 -(void)relayout;
 -(void)reloadData;

@@ -59,6 +59,7 @@ layerSetter(Background, background, CAGradientLayer);
 	return minorTickMarkCount[inAxis];
 }
 
+@synthesize gridColor;
 
 -(NSRange)xRange:(int)i;
 {
@@ -108,6 +109,8 @@ static float sidebarSize = 40;
 	// there, but that's for another time, when there is time to be had.
 	self.background = self.xAxis = self.yAxis = self.gridLines = self.dataLines = nil;
 	
+	if(!gridColor)
+		self.gridColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.49 alpha:0.3];
 	
 	// Setup the container layers
 	
@@ -117,8 +120,8 @@ static float sidebarSize = 40;
 	self.background = [CAGradientLayer layer];
 	self.background.frame = pen;
 	self.background.colors = [NSArray arrayWithObjects:
-														(id)[UIColor colorWithHue:0.580 saturation:0.09 brightness:0.95 alpha:1.0].CGColor,
-														(id)[UIColor colorWithHue:0.580 saturation:0.15 brightness:0.93 alpha:1.0].CGColor,
+														(id)[UIColor colorWithHue:0.580 saturation:0.01 brightness:1.0 alpha:1.0].CGColor,
+														(id)[UIColor colorWithHue:0.580 saturation:0.01 brightness:0.94 alpha:1.0].CGColor,
 														nil];
 	
 	// gridLines
@@ -204,7 +207,7 @@ static float sidebarSize = 40;
 		CGPathAddLineToPoint(pa, NULL, x, self.frame.size.height);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.99 alpha:0.6].CGColor;
+		lg.strokeColor = gridColor.CGColor;
 		[lg setName:[NSString stringWithFormat:@"XAxis %f", pen.origin.x]];
 		
 		
@@ -244,7 +247,7 @@ static float sidebarSize = 40;
 		CGPathAddLineToPoint(pa, NULL, self.frame.size.width, y);
 		lg.path = pa;
 		CGPathRelease(pa);
-		lg.strokeColor = [UIColor colorWithHue:0.580 saturation:0.05 brightness:0.99 alpha:0.6].CGColor;
+		lg.strokeColor = gridColor.CGColor;
 		[lg setName:[NSString stringWithFormat:@"YAxis %f", pen.origin.y]];
 		
 		

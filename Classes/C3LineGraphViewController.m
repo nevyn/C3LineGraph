@@ -148,9 +148,9 @@ minimumValueForLineIndex:(NSUInteger)inLineIndex
 			 customizeLine: (CAShapeLayer*)lineLayer
 					 withIndex:(NSUInteger)inLineIndex;
 {
-	if(inLineIndex == 0) lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
-	if(inLineIndex == 1) lineLayer.strokeColor = [UIColor colorWithHue:0.580 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
-	if(inLineIndex == 2) lineLayer.strokeColor = [UIColor colorWithHue:0.000 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
+	if(inLineIndex == 0) lineLayer.strokeColor = [UIColor colorWithHue:0.300 saturation:0.15 brightness:0.65 alpha:1.0].CGColor;
+	if(inLineIndex == 1) lineLayer.strokeColor = [UIColor colorWithHue:0.300 saturation:0.35 brightness:0.65 alpha:0.4].CGColor;
+	if(inLineIndex == 2) lineLayer.strokeColor = [UIColor colorWithHue:0.650 saturation:0.85 brightness:0.65 alpha:0.4].CGColor;
 	
 }
 
